@@ -2,6 +2,7 @@ package com.anish.aiservice.service;
 
 import com.anish.aiservice.model.Recommendation;
 import com.anish.aiservice.repository.RecommendationRepository;
+import jakarta.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
