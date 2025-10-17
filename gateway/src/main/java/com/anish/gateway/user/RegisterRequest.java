@@ -1,4 +1,4 @@
-package com.anish.userservice.dto;
+package com.anish.gateway.user;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -8,13 +8,16 @@ import lombok.Data;
 @Data
 public class RegisterRequest {
     @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
+    @Email(message = "Invalid email format")
     private String email;
+
     @NotBlank(message = "Password is required")
-    @Size(min = 6, message = "Password should be at least 6 characters long")
+    @Size(min = 6, message = "Password must have atleast 6 characters")
     private String password;
+
+    private String keycloakId;
+
     private String firstName;
     private String lastName;
 
-    private String keycloakId;
 }

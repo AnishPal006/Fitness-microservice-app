@@ -1,9 +1,8 @@
-package com.anish.userservice.dto;
-
+package com.anish.gateway.user;
 
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class UserResponse {
@@ -13,6 +12,6 @@ public class UserResponse {
     private String password;
     private String firstName;
     private String lastName;
-    private LocalDate createdAt;
-    private LocalDate updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
