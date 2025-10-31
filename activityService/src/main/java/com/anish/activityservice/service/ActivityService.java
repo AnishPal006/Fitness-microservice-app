@@ -13,37 +13,40 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
     private final UserValidationService userValidationService;
     private final RabbitTemplate rabbitTemplate;
+
     @Value("${spring.rabbitmq.template.exchange}")
     private String exchange;
 
     @Value("${spring.rabbitmq.template.routing-key}")
     private String routingKey;
 
-    public ActivityResponse trackActivity(ActivityRequest activityRequest) {
-        boolean isValidUser = userValidationService.validateUser(activityRequest.getUserId());
-        if (!isValidUser) {
-            throw new RuntimeException("Invalid User: " + activityRequest.getUserId());
-        }
-        Activity activity = Activity.builder()
-                .userId(activityRequest.getUserId())
-                .type(activityRequest.getType())
-                .duration(activityRequest.getDuration())
-                .caloriesBurned(activityRequest.getCaloriesBurned())
-                .startTime(activityRequest.getStartTime())
-                .additionalMetrics(activityRequest.getAdditionalMetrics())
-                .build();
+    public ActivityResponse trackActivity(ActivityRequest request) {
 
+        boolean isValidUser = userValidationService.validateUser(request.getUserId());
+        if (!isValidUser) {
+            throw new RuntimeException("Invalid User: " + request.getUserId());
+        }
+
+        Activity activity = Activity.builder()
+                .userId(request.getUserId())
+                .type(request.getType())
+                .duration(request.getDuration())
+                .caloriesBurned(request.getCaloriesBurned())
+                .startTime(request.getStartTime())
+                .additionalMetrics(request.getAdditionalMetrics())
+                .build();
 
         Activity savedActivity = activityRepository.save(activity);
 
+        // Publish to RabbitMQ for AI Processing
         try {
             rabbitTemplate.convertAndSend(exchange, routingKey, savedActivity);
         } catch(Exception e) {
@@ -51,8 +54,8 @@ public class ActivityService {
         }
 
         return mapToResponse(savedActivity);
-
     }
+
     private ActivityResponse mapToResponse(Activity activity){
         ActivityResponse response = new ActivityResponse();
         response.setId(activity.getId());

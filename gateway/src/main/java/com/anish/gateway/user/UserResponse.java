@@ -2,7 +2,8 @@ package com.anish.gateway.user;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
+// 1. --- IMPORT LocalDate INSTEAD ---
+import java.time.LocalDate;
 
 @Data
 public class UserResponse {
@@ -12,6 +13,8 @@ public class UserResponse {
     private String password;
     private String firstName;
     private String lastName;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
+    // 2. --- CHANGE THESE TWO LINES TO LocalDate ---
+    private LocalDate createdAt;
+    private LocalDate updatedAt;
 }

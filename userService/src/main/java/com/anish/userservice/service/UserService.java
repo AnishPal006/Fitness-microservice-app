@@ -19,7 +19,20 @@ public class UserService {
     public UserResponse register(RegisterRequest request) {
 
         if (repository.existsByEmail(request.getEmail())) {
+            log.info("User already exists with email: {}", request.getEmail());
             User existingUser = repository.findByEmail(request.getEmail());
+
+            // --- THIS IS THE FIX ---
+            // If the existing user doesn't have a keycloakId, update it.
+            if (existingUser.getKeycloakId() == null || existingUser.getKeycloakId().isEmpty()) {
+                log.info("Updating existing user with Keycloak ID: {}", request.getKeycloakId());
+                existingUser.setKeycloakId(request.getKeycloakId());
+                existingUser.setFirstName(request.getFirstName()); // Also update names
+                existingUser.setLastName(request.getLastName());
+                existingUser = repository.save(existingUser); // Save the update
+            }
+            // --- END OF FIX ---
+
             UserResponse userResponse = new UserResponse();
             userResponse.setId(existingUser.getId());
             userResponse.setKeycloakId(existingUser.getKeycloakId());
@@ -32,9 +45,11 @@ public class UserService {
             return userResponse;
         }
 
+        // This is the original logic for a completely new user
+        log.info("Registering new user with email: {}", request.getEmail());
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(request.getPassword()); // Note: this is saving "dummy@123123"
         user.setKeycloakId(request.getKeycloakId());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
