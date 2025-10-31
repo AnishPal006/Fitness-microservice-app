@@ -6,9 +6,11 @@ import {
   MenuItem,
   Select,
   TextField,
+  Typography,
 } from "@mui/material";
 import React, { useState } from "react";
 import { addActivity } from "../services/api";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
 const ActivityForm = ({ onActivityAdded }) => {
   const [activity, setActivity] = useState({
@@ -20,9 +22,13 @@ const ActivityForm = ({ onActivityAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!activity.duration || !activity.caloriesBurned) {
+      // Simple validation
+      return;
+    }
     try {
       await addActivity(activity);
-      onActivityAdded();
+      onActivityAdded(); // This will trigger the list refresh
       setActivity({ type: "RUNNING", duration: "", caloriesBurned: "" });
     } catch (error) {
       console.error(error);
@@ -30,16 +36,25 @@ const ActivityForm = ({ onActivityAdded }) => {
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
+    <Box component="form" onSubmit={handleSubmit}>
+      <Typography variant="h5" color="primary" gutterBottom>
+        Log New Activity
+      </Typography>
       <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel>Activity Type</InputLabel>
         <Select
           value={activity.type}
+          label="Activity Type"
           onChange={(e) => setActivity({ ...activity, type: e.target.value })}
         >
+          {/* Add all your types from ActivityType.java */}
           <MenuItem value="RUNNING">Running</MenuItem>
           <MenuItem value="WALKING">Walking</MenuItem>
           <MenuItem value="CYCLING">Cycling</MenuItem>
+          <MenuItem value="SWIMMING">Swimming</MenuItem>
+          <MenuItem value="WEIGHT_TRAINING">Weight Training</MenuItem>
+          <MenuItem value="YOGA">Yoga</MenuItem>
+          <MenuItem value="OTHER">Other</MenuItem>
         </Select>
       </FormControl>
       <TextField
@@ -62,7 +77,13 @@ const ActivityForm = ({ onActivityAdded }) => {
         }
       />
 
-      <Button type="submit" variant="contained">
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        startIcon={<AddCircleOutlineIcon />}
+        size="large"
+      >
         Add Activity
       </Button>
     </Box>
